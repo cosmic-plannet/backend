@@ -18,6 +18,7 @@ docs/_build/
 .vscode
 *.pem
 *.ppk
+*.cassandraWorkbench*
 
 # Coverage reports
 htmlcov/

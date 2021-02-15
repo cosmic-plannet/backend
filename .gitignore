@@ -16,6 +16,8 @@ _mailinglist
 .idea/
 docs/_build/
 .vscode
+*.pem
+*.ppk
 
 # Coverage reports
 htmlcov/

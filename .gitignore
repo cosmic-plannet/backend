@@ -19,6 +19,7 @@ docs/_build/
 *.pem
 *.ppk
 *.cassandraWorkbench*
+.venv/
 
 # Coverage reports
 htmlcov/

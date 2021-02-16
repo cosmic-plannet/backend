@@ -133,3 +133,20 @@ def close_room(category, name):
     cluster.shutdown()
 
     return result
+
+
+def adjust_progress(category, name, progress):
+    cluster = Cluster(['127.0.0.1'])
+
+    session = cluster.connect('plannet')
+    session.row_factory = dict_factory
+
+    query = 'UPDATE rooms SET progress = %s WHERE category=%s and name=%s'
+    session.execute(query, (progress, category, name))
+
+    query = 'SELECT * from rooms WHERE category=%s and name=%s'
+    result = session.execute(query, (category, name)).one()
+
+    cluster.shutdown()
+
+    return result

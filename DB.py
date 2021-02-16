@@ -25,3 +25,19 @@ def create_user(email, name, interests):
     cluster.shutdown()
 
     return result
+
+
+def login_user(email):
+    cluster = Cluster(['127.0.0.1'])
+
+    session = cluster.connect('plannet')
+    session.row_factory = dict_factory
+
+    rows = session.execute('SELECT * FROM users WHERE email=\''+email+'\' ALLOW FILTERING')
+
+    cluster.shutdown()
+
+    if not rows:
+        return None
+    
+    return rows[0]

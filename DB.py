@@ -1,4 +1,3 @@
-from cassandra import ConsistencyLevel
 from cassandra.cluster import Cluster
 from cassandra.query import BatchStatement, dict_factory
 from datetime import datetime
@@ -19,8 +18,9 @@ def create_user(email, name, interests):
         batch.add(insert_user, (category, email, name, interests, created_at))
 
     session.execute(batch)
-
-    result = session.execute('SELECT * FROM users WHERE category=\''+interests[0]+'\' and email=\''+email+'\'')[0]
+    
+    query = 'SELECT * FROM users WHERE category=%s and email=%s'
+    result = session.execute(query, (interests[0], email)).one()
 
     cluster.shutdown()
 

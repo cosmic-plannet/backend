@@ -228,3 +228,17 @@ def study_rank(category=None):
             all[key]['penalty'].append(pen['penalty'])
     
     return all
+
+
+def user_rank():
+    cluster = Cluster(['127.0.0.1'])
+
+    session = cluster.connect('plannet')
+    session.row_factory = dict_factory
+    
+    query = 'SELECT name, exp, achieves, evaluate FROM users'
+    users = session.execute(query)
+
+    cluster.shutdown()
+    
+    return users

@@ -20,6 +20,7 @@ docs/_build/
 *.ppk
 *.cassandraWorkbench*
 .venv/
+*_test.py
 
 # Coverage reports
 htmlcov/

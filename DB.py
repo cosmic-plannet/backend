@@ -63,3 +63,24 @@ def create_room(category, name, captain_email, captain_name, max_penalty, descri
     cluster.shutdown()
 
     return result
+
+
+def enroll_room(category, name, crew_email, crew_name):
+    cluster = Cluster(['127.0.0.1'])
+    cluster.register_user_type('plannet', 'user', UDT.user)
+
+    session = cluster.connect('plannet')
+    session.row_factory = dict_factory
+
+    crew = dict()
+    crew[crew_email] = UDT.user(name=crew_name)
+
+    query = 'UPDATE rooms SET crew = crew + %s WHERE category=%s and name=%s'
+    session.execute(query, (crew, category, name))
+
+    query = 'SELECT * FROM rooms WHERE category=%s and name=%s'
+    result = session.execute(query, (category, name)).one()
+
+    cluster.shutdown()
+
+    return result

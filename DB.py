@@ -164,6 +164,23 @@ def clear_todo(category, name, email, todo):
     return result
 
 
+def end_room(category, name):
+    cluster = Cluster(['127.0.0.1'])
+
+    session = cluster.connect('plannet')
+    session.row_factory = dict_factory
+
+    query = 'UPDATE rooms SET status = \'end\' WHERE category=%s and name=%s'
+    session.execute(query, (category, name))
+
+    query = 'SELECT * from rooms WHERE category=%s and name=%s'
+    result = session.execute(query, (category, name)).one()
+
+    cluster.shutdown()
+
+    return result
+
+
 def study_rank(category=None):
     cluster = Cluster(['127.0.0.1'])
 

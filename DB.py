@@ -181,6 +181,23 @@ def end_room(category, name):
     return result
 
 
+def update_exp(email, exp):
+    cluster = Cluster(['127.0.0.1'])
+
+    session = cluster.connect('plannet')
+    session.row_factory = dict_factory
+
+    query = 'UPDATE users SET exp = %s WHERE email=%s'
+    session.execute(query, (exp, email))
+
+    query = 'SELECT * from users WHERE email=\'{}\''.format(email)
+    result = session.execute(query).one()
+
+    cluster.shutdown()
+
+    return result
+
+
 def study_rank(category=None):
     cluster = Cluster(['127.0.0.1'])
 

@@ -251,3 +251,22 @@ def get_user(email):
     cluster.shutdown()
 
     return result
+
+
+def get_room(category, name, email):
+    cluster = Cluster(['127.0.0.1'])
+
+    session = cluster.connect('plannet')
+    session.row_factory = dict_factory
+
+    query = 'SELECT * FROM rooms WHERE category=%s and name=%s'
+    result = session.execute(query, (category, name)).one()
+
+    cluster.shutdown()
+
+    if email not in dict(result['crew']):
+        del result['crew']
+        del result['max_penalty']
+        del result['link']
+
+    return result

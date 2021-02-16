@@ -169,15 +169,27 @@ def clear_todo(category, name, email, todo):
     return result
 
 
-def study_rank():
+def study_rank(category=None):
     cluster = Cluster(['127.0.0.1'])
 
     session = cluster.connect('plannet')
     session.row_factory = dict_factory
     
-    rooms = session.execute('SELECT category, name, exp, progress, crew, status FROM rooms')
-    attendance = session.execute('SELECT category, name, attendee FROM attendance')
-    penalty = session.execute('SELECT category, name, penalty FROM penalty')
+    room_query = 'SELECT category, name, exp, progress, crew, status FROM rooms'
+    attendance_query = 'SELECT category, name, attendee FROM attendance'
+    penalty_query = 'SELECT category, name, penalty FROM penalty'
+
+    if category:
+        additional = ' WHERE category=\'{}\''.format(category)
+        
+        room_query += additional
+        attendance_query += (additional + ' ALLOW FILTERING')
+        penalty_query += additional
+
+
+    rooms = session.execute(room_query)
+    attendance = session.execute(attendance_query)
+    penalty = session.execute(penalty_query)
 
     cluster.shutdown()
 

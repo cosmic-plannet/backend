@@ -22,7 +22,7 @@ CREATE TABLE plannet.users
     name text,
     exp int,
     interests list<text>,
-    achieves list<frozen<achieve>>,
+    achieve map<text, timestamp>,
     doing list<frozen<room>>,
     done list<frozen<room>>,
     evaluate list<text>,

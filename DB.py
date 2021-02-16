@@ -1,6 +1,7 @@
 from cassandra.cluster import Cluster
 from cassandra.query import BatchStatement, ValueSequence, dict_factory
-from datetime import datetime
+from datetime import datetime, date
+from copy import deepcopy
 import UDT
 
 
@@ -166,3 +167,52 @@ def clear_todo(category, name, email, todo):
     cluster.shutdown()
 
     return result
+
+
+def study_rank():
+    cluster = Cluster(['127.0.0.1'])
+
+    session = cluster.connect('plannet')
+    session.row_factory = dict_factory
+    
+    rooms = session.execute('SELECT category, name, exp, progress, crew, status FROM rooms')
+    attendance = session.execute('SELECT category, name, attendee FROM attendance')
+    penalty = session.execute('SELECT category, name, penalty FROM penalty')
+
+    cluster.shutdown()
+
+    all = dict()
+
+    for room in rooms:
+        if room['status']=='start':
+            temp = dict()
+
+            temp['exp'] = room['exp']
+            temp['progress'] = room['progress']
+            temp['crew_num'] = len(room['crew'])+1 if room['crew'] else 1
+
+            all[room['category']+'&^%'+room['name']] = temp
+
+    for attend in attendance:
+        key = attend['category']+'&^%'+attend['name']
+
+        if key in all.keys():
+            if 'attendance' not in all[key]:
+                all[key]['attendance'] = []
+            
+            attend_rate = []
+            for attendee in attend['attendee']:
+                attend_rate.append(len(attendee)/temp['crew_num'])
+        
+        all[key]['attendance'] += attend_rate
+    
+    for pen in penalty:
+        key = attend['category']+'&^%'+attend['name']
+
+        if key in all.keys():
+            if 'penalty' not in all[key]:
+                all[key]['penalty'] = []
+        
+            all[key]['penalty'].append(pen['penalty'])
+    
+    return all

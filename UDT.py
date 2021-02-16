@@ -1,3 +1,8 @@
+from os import name
+
+from cassandra.cluster import EXEC_PROFILE_GRAPH_ANALYTICS_DEFAULT
+
+
 class achieve(object):
     def __init__(self, type, created_at):
         self.type = type
@@ -18,3 +23,9 @@ class user(object):
         self.penalty = penalty
         self.attendance = attendance
         self.todo = todo
+
+    def __init__(self, other_user):
+        self.name = other_user.name
+        self.penalty = other_user.penalty
+        self.attendance = other_user.attendance
+        self.todo = dict(other_user.todo)

@@ -25,7 +25,7 @@ CREATE TABLE plannet.users
     achieves list<frozen<achieve>>,
     doing list<frozen<room>>,
     done list<frozen<room>>,
-    evaluate map<text, int>,
+    evaluate list<text>,
     created_at timestamp,
     PRIMARY KEY (email)
 );

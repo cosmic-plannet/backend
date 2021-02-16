@@ -13,8 +13,7 @@ CREATE TYPE plannet.room
     name text,
     category text,
     level int,
-    exp int,
-    max_num int
+    exp int
 );
 
 CREATE TABLE plannet.users
@@ -32,14 +31,6 @@ CREATE TABLE plannet.users
     PRIMARY KEY (category, email)
 );
 
-CREATE TYPE plannet.user
-(
-    name text,
-    penalty text,
-    attendance list<timestamp>,
-    todo map<text, boolean>
-);
-
 CREATE TABLE plannet.rooms
 (
     category text,
@@ -48,14 +39,39 @@ CREATE TABLE plannet.rooms
     level int,
     exp int,
     status text,
-    captain map<text, frozen<user>>,
-    crew map<text, frozen<user>>,
+    captain map<text, text>,
+    crew map<text, text>,
     max_penalty int,
     progress int,
-    attendance list<timestamp>,
     link text,
     created_at timestamp,
     PRIMARY KEY (category, name)
 );
 
-select * from system_schema.tables where keyspace_name='plannet';
+CREATE TABLE plannet.attendance
+(
+    category text,
+    name text,
+    attend_at date,
+    ateendee list<text>,
+    PRIMARY KEY ((category, name), attend_at)
+);
+
+CREATE TABLE plannet.penalty
+(
+    category text,
+    name text,
+    email text,
+    penalty counter,
+    PRIMARY KEY (category, name, email)
+);
+
+CREATE TABLE plannet.todo
+(
+    category text,
+    name text,
+    email text,
+    todo text,
+    done boolean,
+    PRIMARY KEY ((category, name, email), todo)
+);

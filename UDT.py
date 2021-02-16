@@ -15,17 +15,3 @@ class room(object):
         self.category = category
         self.level = level
         self.exp = exp
-
-
-class user(object):
-    def __init__(self, name, penalty=0, attendance=[], todo={}):
-        self.name = name
-        self.penalty = penalty
-        self.attendance = attendance
-        self.todo = todo
-
-    def __init__(self, other_user):
-        self.name = other_user.name
-        self.penalty = other_user.penalty
-        self.attendance = other_user.attendance
-        self.todo = dict(other_user.todo)

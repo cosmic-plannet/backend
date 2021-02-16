@@ -34,14 +34,14 @@ def login_user(email):
     session = cluster.connect('plannet')
     session.row_factory = dict_factory
 
-    rows = session.execute('SELECT * FROM users WHERE email=\''+email+'\' ALLOW FILTERING')
+    rows = session.execute('SELECT * FROM users WHERE email=\''+email+'\' ALLOW FILTERING').one()
 
     cluster.shutdown()
 
     if not rows:
         return None
     
-    return rows[0]
+    return rows
 
 
 def create_room(category, name, captain_email, captain_name, max_penalty, description=None):
@@ -59,5 +59,7 @@ def create_room(category, name, captain_email, captain_name, max_penalty, descri
 
     query = 'SELECT * FROM rooms WHERE category=%s and name=%s'
     result = session.execute(query, (category, name)).one()
+
+    cluster.shutdown()
 
     return result

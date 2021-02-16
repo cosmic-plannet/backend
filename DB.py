@@ -149,3 +149,20 @@ def add_todo(category, name, email, todo):
     cluster.shutdown()
 
     return result
+
+
+def clear_todo(category, name, email, todo):
+    cluster = Cluster(['127.0.0.1'])
+
+    session = cluster.connect('plannet')
+    session.row_factory = dict_factory
+
+    query = 'UPDATE todo SET done = True WHERE category=%s and name=%s and email=%s and todo=%s'
+    session.execute(query, (category, name, email, todo))
+
+    query = 'SELECT * from todo WHERE category=%s and name=%s and email=%s and todo=%s'
+    result = session.execute(query, (category, name, email, todo))
+
+    cluster.shutdown()
+
+    return result

@@ -1,4 +1,3 @@
-from cassandra import NullHandler
 from cassandra.cluster import Cluster
 from cassandra.query import BatchStatement, ValueSequence, dict_factory
 from datetime import datetime

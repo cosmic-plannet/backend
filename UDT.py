@@ -1,8 +1,3 @@
-from os import name
-
-from cassandra.cluster import EXEC_PROFILE_GRAPH_ANALYTICS_DEFAULT
-
-
 class achieve(object):
     def __init__(self, type, created_at):
         self.type = type

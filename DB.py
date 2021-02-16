@@ -237,3 +237,17 @@ def user_rank():
     cluster.shutdown()
     
     return users
+
+
+def get_user(email):
+    cluster = Cluster(['127.0.0.1'])
+
+    session = cluster.connect('plannet')
+    session.row_factory = dict_factory
+
+    query = 'SELECT * FROM users WHERE email=\'{}\''.format(email)
+    result = session.execute(query).one()
+
+    cluster.shutdown()
+
+    return result

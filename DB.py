@@ -1,6 +1,7 @@
 from cassandra.cluster import Cluster
 from cassandra.query import BatchStatement, dict_factory
 from datetime import datetime
+import UDT
 
 
 def create_user(email, name, interests):
@@ -41,3 +42,22 @@ def login_user(email):
         return None
     
     return rows[0]
+
+
+def create_room(category, name, captain_email, captain_name, max_penalty, description=None):
+    cluster = Cluster(['127.0.0.1'])
+    cluster.register_user_type('plannet', 'user', UDT.user)
+
+    session = cluster.connect('plannet')
+    session.row_factory = dict_factory
+
+    captain = dict()
+    captain[captain_email] = UDT.user(name=captain_name)
+
+    query = 'INSERT INTO rooms (category, name, description, level, exp, status, captain, max_penalty, progress, created_at) VALUES (%s, %s, %s, 0, 0, \'open\', %s, %s, 0, %s)'
+    session.execute(query, (category, name, description, captain, max_penalty, datetime.now()))
+
+    query = 'SELECT * FROM rooms WHERE category=%s and name=%s'
+    result = session.execute(query, (category, name)).one()
+
+    return result

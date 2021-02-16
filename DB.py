@@ -10,19 +10,12 @@ def create_user(email, name, interests):
 
     session = cluster.connect('plannet')
     session.row_factory = dict_factory
-    insert_user = session.prepare('INSERT INTO users (category, email, name, exp, interests, created_at) VALUES (?, ?, ?, 0, ?, ?)')
 
-    batch = BatchStatement()
-
-    created_at = datetime.now()
-
-    for category in interests:
-        batch.add(insert_user, (category, email, name, interests, created_at))
-
-    session.execute(batch)
+    query= 'INSERT INTO users (email, name, exp, interests, created_at) VALUES (%s, %s, 0, %s, %s)'
+    session.execute(query, (email, name, interests, datetime.now()))
     
-    query = 'SELECT * FROM users WHERE category=%s and email=%s'
-    result = session.execute(query, (interests[0], email)).one()
+    query = 'SELECT * FROM users WHERE email=\'{}\''.format(email)
+    result = session.execute(query).one()
 
     cluster.shutdown()
 
@@ -35,14 +28,15 @@ def login_user(email):
     session = cluster.connect('plannet')
     session.row_factory = dict_factory
 
-    row = session.execute('SELECT * FROM users WHERE email=\''+email+'\' ALLOW FILTERING').one()
+    query = 'SELECT * FROM users WHERE email=\'{}\''.format(email)
+    result = session.execute(query).one()
 
     cluster.shutdown()
 
-    if not row:
+    if not result:
         return None
     
-    return row
+    return result
 
 
 def create_room(category, name, captain_email, captain_name, max_penalty, description=None):
@@ -85,13 +79,14 @@ def enroll_room(category, name, crew_email, crew_name):
     return result
 
 
-def recommend_room(email, name):
+def recommend_room(email):
     cluster = Cluster(['127.0.0.1'])
 
     session = cluster.connect('plannet')
     session.row_factory = dict_factory
 
-    row = session.execute('SELECT interests FROM users WHERE email=\''+email+'\' ALLOW FILTERING').one()
+    query = 'SELECT interests FROM users WHERE email=\'{}\''.format(email)
+    row = session.execute(query).one()
 
     query = ('SELECT * FROM rooms WHERE category in %s')
     rows = session.execute(query, [ValueSequence(row['interests'])])

@@ -18,7 +18,6 @@ CREATE TYPE plannet.room
 
 CREATE TABLE plannet.users
 (
-    category text,
     email text,
     name text,
     exp int,
@@ -28,7 +27,7 @@ CREATE TABLE plannet.users
     done list<frozen<room>>,
     evaluate map<text, int>,
     created_at timestamp,
-    PRIMARY KEY (category, email)
+    PRIMARY KEY (email)
 );
 
 CREATE TABLE plannet.rooms
@@ -53,7 +52,7 @@ CREATE TABLE plannet.attendance
     category text,
     name text,
     attend_at date,
-    ateendee list<text>,
+    attendee list<text>,
     PRIMARY KEY ((category, name), attend_at)
 );
 

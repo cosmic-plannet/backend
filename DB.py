@@ -40,6 +40,7 @@ def login_user(email):
 
 def create_room(category, name, captain_email, captain_name, max_penalty, description=None):
     cluster = Cluster(['127.0.0.1'])
+    cluster.register_user_type('plannet', 'room', UDT.room)
 
     session = cluster.connect('plannet')
     session.row_factory = dict_factory
@@ -49,6 +50,10 @@ def create_room(category, name, captain_email, captain_name, max_penalty, descri
 
     query = 'INSERT INTO rooms (category, name, description, level, exp, status, captain, max_penalty, progress, created_at) VALUES (%s, %s, %s, 0, 0, \'open\', %s, %s, 0, %s)'
     session.execute(query, (category, name, description, captain, max_penalty, datetime.now()))
+
+    new_room = UDT.room(name=name, category=category, level=0, exp=0)
+    query = 'UPDATE users SET doing = doing + %s WHERE email=%s'
+    session.execute(query, ([new_room], captain_email))
 
     query = 'SELECT * FROM rooms WHERE category=%s and name=%s'
     result = session.execute(query, (category, name)).one()
@@ -60,6 +65,7 @@ def create_room(category, name, captain_email, captain_name, max_penalty, descri
 
 def enroll_room(category, name, crew_email, crew_name):
     cluster = Cluster(['127.0.0.1'])
+    cluster.register_user_type('plannet', 'room', UDT.room)
 
     session = cluster.connect('plannet')
     session.row_factory = dict_factory
@@ -69,6 +75,10 @@ def enroll_room(category, name, crew_email, crew_name):
 
     query = 'UPDATE rooms SET crew = crew + %s WHERE category=%s and name=%s'
     session.execute(query, (crew, category, name))
+
+    new_room = UDT.room(name=name, category=category, level=0, exp=0)
+    query = 'UPDATE users SET doing = doing + %s WHERE email=%s'
+    session.execute(query, ([new_room], crew_email))
 
     query = 'SELECT * FROM rooms WHERE category=%s and name=%s'
     result = session.execute(query, (category, name)).one()

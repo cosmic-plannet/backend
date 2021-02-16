@@ -264,9 +264,10 @@ def get_room(category, name, email):
 
     cluster.shutdown()
 
-    if email not in dict(result['crew']):
+    is_member = True if email in dict(result['crew']) else False
+    if not is_member:
         del result['crew']
         del result['max_penalty']
         del result['link']
 
-    return result
+    return is_member, result

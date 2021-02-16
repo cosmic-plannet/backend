@@ -116,3 +116,20 @@ def recommend_room(email, name):
         result.append(row)
 
     return result
+
+
+def close_room(category, name):
+    cluster = Cluster(['127.0.0.1'])
+
+    session = cluster.connect('plannet')
+    session.row_factory = dict_factory
+
+    query = 'UPDATE rooms SET status = \'start\' WHERE category=%s and name=%s'
+    session.execute(query, (category, name))
+
+    query = 'SELECT * from rooms WHERE category=%s and name=%s'
+    result = session.execute(query, (category, name)).one()
+
+    cluster.shutdown()
+
+    return result

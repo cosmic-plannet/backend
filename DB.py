@@ -3,6 +3,11 @@ from cassandra.query import BatchStatement, ValueSequence, dict_factory
 from datetime import datetime
 
 
+'''
+create_user(email: str, name:str, interests:[str]) -> dict
+
+creates a new user and returns the created user's info
+'''
 def create_user(email, name, interests):
     cluster = Cluster(['127.0.0.1'])
 
@@ -20,6 +25,11 @@ def create_user(email, name, interests):
     return result
 
 
+'''
+login_user(email: str) -> dict or None
+
+returns the user's info if that user is a signed user else returns None
+'''
 def login_user(email):
     cluster = Cluster(['127.0.0.1'])
 
@@ -37,6 +47,11 @@ def login_user(email):
     return result
 
 
+'''
+create_room(category: str, name: str, captain_email: str, captain_name: str, max_penalty: int, description: str)-> dict
+
+creates a new room and returns the created room's info
+'''
 def create_room(category, name, captain_email, captain_name, max_penalty, description=None):
     cluster = Cluster(['127.0.0.1'])
 
@@ -60,6 +75,11 @@ def create_room(category, name, captain_email, captain_name, max_penalty, descri
     return result
 
 
+'''
+enroll_room(category: str, name: str, crew_email: str, crew_name: str) -> dict
+
+enrolls to the room and returns the room's info
+'''
 def enroll_room(category, name, crew_email, crew_name):
     cluster = Cluster(['127.0.0.1'])
 
@@ -83,6 +103,11 @@ def enroll_room(category, name, crew_email, crew_name):
     return result
 
 
+'''
+recommend_room(email: str) -> ResultSet filled with dict
+
+returns all rooms that the user interests in
+'''
 def recommend_room(email):
     cluster = Cluster(['127.0.0.1'])
 
@@ -100,6 +125,11 @@ def recommend_room(email):
     return rows
 
 
+'''
+close_room(category: str, name: str) -> dict
+
+changes the room's status and eturns the closed room's info
+'''
 def close_room(category, name):
     cluster = Cluster(['127.0.0.1'])
 
@@ -117,6 +147,11 @@ def close_room(category, name):
     return result
 
 
+'''
+adjust_progress(categry: str, name: str, progress: int) -> dict
+
+changes the room's progress and returns the room's info that the progress is adjusted
+'''
 def adjust_progress(category, name, progress):
     cluster = Cluster(['127.0.0.1'])
 
@@ -134,6 +169,11 @@ def adjust_progress(category, name, progress):
     return result
 
 
+'''
+add_todo(category: str, name: str, email: str, todo: str) -> ResultSet filled with dict
+
+adds todo into the user's list and returns the todo list of the user
+'''
 def add_todo(category, name, email, todo):
     cluster = Cluster(['127.0.0.1'])
 
@@ -151,6 +191,11 @@ def add_todo(category, name, email, todo):
     return result
 
 
+'''
+clear_todo(category: str, name: str, email: str, todo: str) -> ResultSet filled with dict
+
+changes the todo's status and returns the todo list of the user
+'''
 def clear_todo(category, name, email, todo):
     cluster = Cluster(['127.0.0.1'])
 
@@ -168,6 +213,11 @@ def clear_todo(category, name, email, todo):
     return result
 
 
+'''
+end_room(category: str, name: str) -> dict
+
+changes the room's status and each member's achieve, room list things and returns the ended room's info
+'''
 def end_room(category, name):
     cluster = Cluster(['127.0.0.1'])
 
@@ -230,6 +280,11 @@ def end_room(category, name):
     return result
 
 
+'''
+update_user_exp(email: str, exp: str) -> dict
+
+changes the user's exp and returns the user's info
+'''
 def update_user_exp(email, exp):
     cluster = Cluster(['127.0.0.1'])
 
@@ -247,6 +302,11 @@ def update_user_exp(email, exp):
     return result
 
 
+'''
+evaluate(email: str, eval: str) -> dict
+
+adds into the user's evaluate list and returns the user's info
+'''
 def evaluate(email, eval):
     cluster = Cluster(['127.0.0.1'])
 
@@ -264,6 +324,11 @@ def evaluate(email, eval):
     return result
 
 
+'''
+study_rank(category: str) -> dict
+
+returns all study's info related to category if category is specified else returns all study's info
+'''
 def study_rank(category=None):
     cluster = Cluster(['127.0.0.1'])
 
@@ -325,6 +390,11 @@ def study_rank(category=None):
     return all
 
 
+'''
+user_rank() -> ResultSet filled with dict
+
+returns all user's info
+'''
 def user_rank():
     cluster = Cluster(['127.0.0.1'])
 
@@ -339,6 +409,11 @@ def user_rank():
     return users
 
 
+'''
+get_user(email: str) -> dict
+
+returns the user's info
+'''
 def get_user(email):
     cluster = Cluster(['127.0.0.1'])
 
@@ -353,6 +428,11 @@ def get_user(email):
     return result
 
 
+'''
+get_room(category: str, name: str, email: str) -> dict
+
+returns the rooms's whole info if the user is the member of the room else returns the room's filtered info
+'''
 def get_room(category, name, email):
     cluster = Cluster(['127.0.0.1'])
 

@@ -1,16 +1,12 @@
+<img src="https://img.shields.io/badge/Python-3766AB?style=flat-square&logo=Python&logoColor=white"/></a>
+<img src="https://img.shields.io/badge/Flask-000000?style=flat-square&logo=Flask"/></a>
+<img src="https://img.shields.io/badge/Apache_Cassandra-1287B1?style=flat-square&logo=Apache%20Cassandra&logoColor=white"/></a>
+
+
+
 # 🪐PLAN:NET
 
 👩‍👧‍👧 신뢰도가 보장된 팀원과 함께하는 온라인 스터디 플랫폼
-
-
-
-## 사용 기술
-
-Language: Python
-
-Framework: Flask
-
-NoSQL Database: Cassandra
 
 
 

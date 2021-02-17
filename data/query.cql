@@ -2,30 +2,15 @@ CREATE KEYSPACE IF NOT EXISTS plannet WITH REPLICATION={'class':'SimpleStrategy'
 
 USE plannet;
 
-CREATE TYPE plannet.achieve
-(
-    type text,
-    created_at timestamp
-);
-
-CREATE TYPE plannet.room
-(
-    name text,
-    category text,
-    level int,
-    exp int
-);
-
 CREATE TABLE plannet.users
 (
     email text,
     name text,
     exp int,
     interests list<text>,
-    achieves list<frozen<achieve>>,
-    doing list<frozen<room>>,
-    done list<frozen<room>>,
-    evaluate map<text, int>,
+    achieve map<text, timestamp>,
+    room map<text, boolean>,
+    evaluate list<text>,
     created_at timestamp,
     PRIMARY KEY (email)
 );

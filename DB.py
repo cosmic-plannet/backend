@@ -58,14 +58,18 @@ def create_room(category, name, captain_email, captain_name, max_penalty, descri
     session = cluster.connect('plannet')
     session.row_factory = dict_factory
 
+    batch = BatchStatement()
+
     captain = dict()
     captain[captain_email] = captain_name
 
-    query = 'INSERT INTO rooms (category, name, description, level, exp, status, captain, max_penalty, progress, created_at) VALUES (%s, %s, %s, 0, 0, \'open\', %s, %s, 0, %s)'
-    session.execute(query, (category, name, description, captain, max_penalty, datetime.now()))
+    prepare = session.prepare('INSERT INTO rooms (category, name, description, level, exp, status, captain, max_penalty, progress, created_at) VALUES (?, ?, ?, 0, 0, \'open\', ?, ?, 0, ?)')
+    batch.add(prepare, (category, name, description, captain, max_penalty, datetime.now()))
 
-    query = 'UPDATE users SET room[%s] = False WHERE email=%s'
-    session.execute(query, (category+'&^%'+name, captain_email))
+    prepare = session.prepare('UPDATE users SET room[?] = False WHERE email=?')
+    batch.add(prepare, (category+'&^%'+name, captain_email))
+    
+    session.execute(batch)
 
     query = 'SELECT * FROM rooms WHERE category=%s and name=%s'
     result = session.execute(query, (category, name)).one()
@@ -86,14 +90,18 @@ def enroll_room(category, name, crew_email, crew_name):
     session = cluster.connect('plannet')
     session.row_factory = dict_factory
 
+    batch = BatchStatement()
+
     crew = dict()
     crew[crew_email] = crew_name
 
-    query = 'UPDATE rooms SET crew = crew + %s WHERE category=%s and name=%s'
-    session.execute(query, (crew, category, name))
+    prepare = session.prepare('UPDATE rooms SET crew = crew + ? WHERE category=? and name=?')
+    batch.add(prepare, (crew, category, name))
 
-    query = 'UPDATE users SET room[%s] = False WHERE email=%s'
-    session.execute(query, (category+'&^%'+name, crew_email))
+    prepare = session.prepare('UPDATE users SET room[?] = False WHERE email=?')
+    batch.add(prepare, (category+'&^%'+name, crew_email))
+
+    session.execute(batch)
 
     query = 'SELECT * FROM rooms WHERE category=%s and name=%s'
     result = session.execute(query, (category, name)).one()

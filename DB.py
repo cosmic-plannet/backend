@@ -1,7 +1,6 @@
 from cassandra.cluster import Cluster
-from cassandra.query import ValueSequence, dict_factory
-from datetime import datetime, date
-import UDT
+from cassandra.query import BatchStatement, ValueSequence, dict_factory
+from datetime import datetime
 
 
 def create_user(email, name, interests):
@@ -40,7 +39,6 @@ def login_user(email):
 
 def create_room(category, name, captain_email, captain_name, max_penalty, description=None):
     cluster = Cluster(['127.0.0.1'])
-    cluster.register_user_type('plannet', 'room', UDT.room)
 
     session = cluster.connect('plannet')
     session.row_factory = dict_factory
@@ -51,9 +49,8 @@ def create_room(category, name, captain_email, captain_name, max_penalty, descri
     query = 'INSERT INTO rooms (category, name, description, level, exp, status, captain, max_penalty, progress, created_at) VALUES (%s, %s, %s, 0, 0, \'open\', %s, %s, 0, %s)'
     session.execute(query, (category, name, description, captain, max_penalty, datetime.now()))
 
-    new_room = UDT.room(name=name, category=category, level=0, exp=0)
-    query = 'UPDATE users SET doing = doing + %s WHERE email=%s'
-    session.execute(query, ([new_room], captain_email))
+    query = 'UPDATE users SET room[%s] = False WHERE email=%s'
+    session.execute(query, (category+'&^%'+name, captain_email))
 
     query = 'SELECT * FROM rooms WHERE category=%s and name=%s'
     result = session.execute(query, (category, name)).one()
@@ -65,7 +62,6 @@ def create_room(category, name, captain_email, captain_name, max_penalty, descri
 
 def enroll_room(category, name, crew_email, crew_name):
     cluster = Cluster(['127.0.0.1'])
-    cluster.register_user_type('plannet', 'room', UDT.room)
 
     session = cluster.connect('plannet')
     session.row_factory = dict_factory
@@ -76,9 +72,8 @@ def enroll_room(category, name, crew_email, crew_name):
     query = 'UPDATE rooms SET crew = crew + %s WHERE category=%s and name=%s'
     session.execute(query, (crew, category, name))
 
-    new_room = UDT.room(name=name, category=category, level=0, exp=0)
-    query = 'UPDATE users SET doing = doing + %s WHERE email=%s'
-    session.execute(query, ([new_room], crew_email))
+    query = 'UPDATE users SET room[%s] = False WHERE email=%s'
+    session.execute(query, (category+'&^%'+name, crew_email))
 
     query = 'SELECT * FROM rooms WHERE category=%s and name=%s'
     result = session.execute(query, (category, name)).one()
@@ -179,8 +174,53 @@ def end_room(category, name):
     session = cluster.connect('plannet')
     session.row_factory = dict_factory
 
+    batch = BatchStatement()
+
     query = 'UPDATE rooms SET status = \'end\' WHERE category=%s and name=%s'
     session.execute(query, (category, name))
+
+    query = 'SELECT captain, crew from rooms WHERE category=%s and name=%s'
+    room = session.execute(query, (category, name)).one()
+
+    members = dict(room['captain'])
+    members.update(dict(room['crew']))
+
+    get_member = 'SELECT achieve, room FROM users WHERE email=\'{}\''
+    get_attendance = 'SELECT attendee FROM attendance WHERE category=%s and name=%s'
+    add_achieve = session.prepare('UPDATE users SET achieve = achieve + ? WHERE email=?')
+    make_done = session.prepare('UPDATE users SET room[?] = True WHERE email=?')
+    for email in members.keys():
+        current_member = get_member.format(email)
+        member = session.execute(current_member).one()
+
+        member_room = dict(member['room'])
+        
+        done_num = 0
+        for val in member_room.values():
+            if val: done_num += 1
+
+        if done_num==0:
+            batch.add(add_achieve, ({'first study': datetime.now()}, email))
+        
+        elif done_num==9:
+            batch.add(add_achieve, ({'tenth study': datetime.now()}, email))
+
+        attendance = session.execute(get_attendance, (category, name))
+
+        if attendance:
+            is_absent = False
+
+            for attendee in attendance['attendee']:
+                if email not in attendee:
+                    is_absent = True
+                    break
+        
+            if not is_absent and 'regular attendance' not in member['achieve']:
+                batch.add(add_achieve, ({'regular attendance': datetime.now()}, email))
+
+        batch.add(make_done, (category+'&^%'+name, email))
+
+    session.execute(batch)
 
     query = 'SELECT * from rooms WHERE category=%s and name=%s'
     result = session.execute(query, (category, name)).one()
@@ -190,7 +230,7 @@ def end_room(category, name):
     return result
 
 
-def update_exp(email, exp):
+def update_user_exp(email, exp):
     cluster = Cluster(['127.0.0.1'])
 
     session = cluster.connect('plannet')
@@ -291,7 +331,7 @@ def user_rank():
     session = cluster.connect('plannet')
     session.row_factory = dict_factory
     
-    query = 'SELECT name, exp, achieves, evaluate FROM users'
+    query = 'SELECT name, exp, achieve, evaluate FROM users'
     users = session.execute(query)
 
     cluster.shutdown()

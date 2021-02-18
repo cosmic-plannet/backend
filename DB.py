@@ -152,16 +152,16 @@ def recommend_crew(category, evaluate):
     result = dict()
     result['all'] = []
     result['category'] = []
-    result['interests'] = []
+    result['evaluate'] = []
 
     for row in rows:
-        if category in row['interests'] and bool(set(evaluate).intersection(row['evaluate'] if bool(row['evaluate']) else set())):
+        if category in row['interests'] and bool(set(evaluate).intersection(row['evaluate'] if row['evaluate'] else set())):
             result['all'].append(row)
         
         elif category in row['interests']:
             result['category'].append(row)
         
-        elif bool(set(evaluate).intersection(row['evaluate'] if bool(row['evaluate']) else set())):
+        elif bool(set(evaluate).intersection(row['evaluate'] if row['evaluate'] else set())):
             result['evaluate'].append(row)
 
 

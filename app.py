@@ -10,16 +10,38 @@ def home():
     app.logger.info('home')
     return "Hello World"
 
+@app.route('/room/create', methods=['POST'])
+def create_room():
+    req = request.get_json()
+    # update db
+    logging.info("update data")
+    logging.info(req)
 
-@app.route('/user', methods=['POST']
+    # category, name, captain_email, captain_name, max_penalty, description=None
+    DB.create_room(category=req['category'], max_penalty=req['penalty'], description=req['target'])
+
+    return jsonify(req)
+
+
+@app.route('/user', methods=['POST'])
 def get_user():
     req = request.get_json()
 
-    DB.create_user() # email, name, interests
-    return 0
+    DB.create_user(req['email'], req['name'], req['interests']]) # email, name, interests
+
+    return jsonify(req)
 
 
-@app.route('/login', methods=['GET']
+@app.route('/user/recommend', methods=['POST'])
+def recommend_user():
+    req = request.get_json()
+
+    
+
+    return jsonify(req)
+
+
+@app.route('/login', methods=['GET'])
 def login():
     req = request.get_json()
 
@@ -28,27 +50,16 @@ def login():
     return jsonify(ret)
 
 
-@app.route('/room/create', methods=['POST'])
-def get_data():
-    req = request.get_json()
-    # update db
-    logging.info("update data")
-    logging.info(req)
-
-    # category, name, captain_email, captain_name, max_penalty, description=None
-    DB.create_room()
-
-    return 0
-
-
 @app.route('/room/enter', methods=['POST'])
 def enter_room():
     req = request.get_json()
 
     # category, name, crew_email, crew_name
+    DB
+
     DB.enroll_room()
 
-    return 0
+    return jsonify(req)
 
 
 @app.route('/room/recommands', methods=['GET'])
@@ -99,10 +110,6 @@ def clear_todo():
 
     return 0
 
-
-
-@app.route('', methods=[])
-
 if __name__ == "__main__":
     logging.info("start")
-    app.run(host='0.0.0.0', port='5000', debug=True)
+    app.run(host='0.0.0.0', port=8080)

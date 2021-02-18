@@ -134,11 +134,11 @@ def recommend_room(email):
 
 
 '''
-recommend_crew(category: str) -> list filled with dict
+recommend_crew(category: str, evaluate: [str]) -> list filled with dict
 
 returns all users who interest in the category
 '''
-def recommend_crew(category):
+def recommend_crew(category, evaluate):
     cluster = Cluster(['127.0.0.1'])
 
     session = cluster.connect('plannet')
@@ -152,7 +152,7 @@ def recommend_crew(category):
     all = []
 
     for row in rows:
-        if category in row['interests']:
+        if category in row['interests'] and bool(set(evaluate).intersection(row['evaluate'])):
             all.append(row)
 
 

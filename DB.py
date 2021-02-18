@@ -134,7 +134,7 @@ def recommend_room(email):
 
 
 '''
-recommend_crew(category: str, evaluate: [str]) -> list filled with dict
+recommend_crew(category: str, evaluate: [str]) -> dict filled with list
 
 returns all users who interest in the category
 '''
@@ -149,14 +149,23 @@ def recommend_crew(category, evaluate):
 
     cluster.shutdown()
 
-    all = []
+    result = dict()
+    result['all'] = []
+    result['category'] = []
+    result['interests'] = []
 
     for row in rows:
         if category in row['interests'] and bool(set(evaluate).intersection(row['evaluate'])):
-            all.append(row)
+            result['all'].append(row)
+        
+        elif category in row['interests']:
+            result['category'].append(row)
+        
+        elif bool(set(evaluate).intersection(row['evaluate'])):
+            result['evaluate'].append(row)
 
 
-    return all
+    return result
 
 
 '''

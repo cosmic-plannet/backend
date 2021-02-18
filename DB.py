@@ -134,6 +134,32 @@ def recommend_room(email):
 
 
 '''
+recommend_crew(category: str) -> list filled with dict
+
+returns all users who interest in the category
+'''
+def recommend_crew(category):
+    cluster = Cluster(['127.0.0.1'])
+
+    session = cluster.connect('plannet')
+    session.row_factory = dict_factory
+
+    query = 'SELECT email, name, interests, exp, achieve, evaluate FROM users'
+    rows = session.execute(query)
+
+    cluster.shutdown()
+
+    all = []
+
+    for row in rows:
+        if category in row['interests']:
+            all.append(row)
+
+
+    return all
+
+
+'''
 close_room(category: str, name: str) -> dict
 
 changes the room's status and eturns the closed room's info
